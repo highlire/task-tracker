@@ -9,6 +9,12 @@ import (
 )
 
 // reflect logic without map, all tasks will be write to file instantly if loops is valid.
+// can be used slice of structs:
+//
+//	type Task struct {
+//	ID   int    `json:"id"`
+//	Text string `json:"text"`
+//	}
 func main() {
 
 	stock := map[int][]string{}
