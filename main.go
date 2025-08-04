@@ -8,6 +8,7 @@ import (
 	"strings"
 )
 
+// reflect logic without map, all tasks will be write to file instantly if loops is valid.
 func main() {
 
 	stock := map[int][]string{}
