@@ -8,6 +8,11 @@ import (
 	"strings"
 )
 
+type Task struct {
+	ID   int    `json:"id"`
+	Text string `json:"text"`
+}
+
 // reflect logic without map, all tasks will be write to file instantly if loops is valid.
 // can be used slice of structs:
 //
@@ -18,7 +23,7 @@ import (
 //	 and add info to file with openfile and "encode" / "decode"
 func main() {
 
-	stock := map[int][]string{}
+	stock := []Task{} // slice of tasks
 	cmd := []string{}
 	count := 0
 
@@ -27,16 +32,18 @@ func main() {
 	if _, err := os.Stat(filename); os.IsNotExist(err) {
 		fmt.Println("File not found, it will be created automatically")
 	}
+
 	// Open the file for reading and writing, create it if it doesn't exist
 	file, err := os.OpenFile(filename, os.O_RDWR|os.O_CREATE, 0644)
 	if err != nil {
 		fmt.Println("Error opening file:", err)
 		return
 	}
-	// Ensure the file is closed when done
+
 	defer file.Close()
 
 	fmt.Println("Welcome to task-cli. Run any command. Try 'Help' to view help.")
+
 	scanner := bufio.NewScanner(os.Stdin)
 	if ok := scanner.Scan(); ok {
 		cmd = strings.Fields(scanner.Text())
