@@ -2,7 +2,9 @@ package main
 
 import (
 	"bufio"
+	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 	"strconv"
 	"strings"
@@ -27,7 +29,7 @@ func main() {
 	cmd := []string{}
 	count := 0
 
-	// File service
+	// не очень логично. убрать
 	filename := "tasks.json"
 	if _, err := os.Stat(filename); os.IsNotExist(err) {
 		fmt.Println("File not found, it will be created automatically")
@@ -42,6 +44,27 @@ func main() {
 
 	defer file.Close()
 
+	// Write file
+	fileInfo, _ := file.Stat()
+	if fileInfo.Size() > 0 {
+		fmt.Println("File already exists, reading tasks from file...")
+		data, err := io.ReadAll(file)
+		if err != nil {
+			fmt.Println("Error reading file:", err)
+			return
+		}
+		err = json.Unmarshal(data, &stock)
+		if err != nil {
+			fmt.Println("Error decoding JSON:", err)
+			return
+		}
+		fmt.Println("Current tasks:", stock)
+	} else {
+		empty, _ := json.Marshal(stock)
+		file.Write(empty)
+		file.Seek(0, 0)
+	}
+
 	fmt.Println("Welcome to task-cli. Run any command. Try 'Help' to view help.")
 
 	scanner := bufio.NewScanner(os.Stdin)
@@ -55,9 +78,12 @@ func main() {
 		// add command
 	} else if strings.ToLower(cmd[0]) == "add" {
 		count++
-		cmd[0] = "to do"
-		stock[count] = cmd
-		fmt.Println("Task added successfully, details:", stock[count])
+		newTask := Task{
+			ID:   count,
+			Text: "To do " + strings.Join(cmd[1:], " "),
+		}
+		stock = append(stock, newTask)
+		fmt.Println("Task added successfully, details:", newTask)
 		// update command
 	} else if strings.ToLower(cmd[0]) == "update" {
 		id, err := strconv.Atoi(cmd[1])
